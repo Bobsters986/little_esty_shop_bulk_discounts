@@ -7,7 +7,6 @@ class BulkDiscountsController < ApplicationController
     @discounts = @merchant.bulk_discounts
   end
 
-
   private
 
   def find_merchant

@@ -58,21 +58,29 @@ RSpec.describe 'Bulk Discounts Index', type: :feature do
   describe "As a merchant" do
     describe "when I visit my bulk discounts index page" do
       it 'I see all of my bulk discounts including their percentage discount and quantity thresholds' do
-        expect(page).to have_content("Title: #{@bulk_discount_1.title}")
-        expect(page).to have_content("Percentage Discount: #{@bulk_discount_1.percentage_discount * 100}%")
-        expect(page).to have_content("Quantity Threshold: #{@bulk_discount_1.quantity_threshold} items")
-        expect(page).to have_content("Title: #{@bulk_discount_2.title}")
-        expect(page).to have_content("Percentage Discount: #{@bulk_discount_2.percentage_discount * 100}%")
-        expect(page).to have_content("Quantity Threshold: #{@bulk_discount_2.quantity_threshold} items")
+        within 'section#all_discounts' do
+          expect(page).to have_content("Title: #{@bulk_discount_1.title}")
+          expect(page).to have_content("Percentage Discount: #{@bulk_discount_1.percentage_discount * 100}%")
+          expect(page).to have_content("Quantity Threshold: #{@bulk_discount_1.quantity_threshold} items")
+          expect(page).to have_content("Title: #{@bulk_discount_2.title}")
+          expect(page).to have_content("Percentage Discount: #{@bulk_discount_2.percentage_discount * 100}%")
+          expect(page).to have_content("Quantity Threshold: #{@bulk_discount_2.quantity_threshold} items")
 
-        expect(page).to_not have_content("Title: #{@bulk_discount_3.title}")
+          expect(page).to_not have_content("Title: #{@bulk_discount_3.title}")
+        end
       end
 
       it 'I see each bulk discount listed includes a link to its show page' do
-        expect(page).to have_link(@bulk_discount_1.title)
-        expect(page).to have_link(@bulk_discount_2.title)
+        within 'section#all_discounts' do
+          expect(page).to have_link(@bulk_discount_1.title)
+          expect(page).to have_link(@bulk_discount_2.title)
 
-        expect(page).to_not have_link(@bulk_discount_3.title)
+          expect(page).to_not have_link(@bulk_discount_3.title)
+        end
+      end
+
+      it 'I see a link to create a new discount, when clicked, takes me to a new page where I see a form to add a new bulk discount' do
+
       end
     end
   end
