@@ -60,10 +60,10 @@ RSpec.describe 'Bulk Discounts Index', type: :feature do
       it 'I see all of my bulk discounts including their percentage discount and quantity thresholds' do
         within 'section#all_discounts' do
           expect(page).to have_content("Title: #{@bulk_discount_1.title}")
-          expect(page).to have_content("Percentage Discount: #{@bulk_discount_1.percentage_discount * 100}%")
+          expect(page).to have_content("Percentage Discount: #{(@bulk_discount_1.percentage_discount * 100).to_i}%")
           expect(page).to have_content("Quantity Threshold: #{@bulk_discount_1.quantity_threshold} items")
           expect(page).to have_content("Title: #{@bulk_discount_2.title}")
-          expect(page).to have_content("Percentage Discount: #{@bulk_discount_2.percentage_discount * 100}%")
+          expect(page).to have_content("Percentage Discount: #{(@bulk_discount_2.percentage_discount * 100).to_i}%")
           expect(page).to have_content("Quantity Threshold: #{@bulk_discount_2.quantity_threshold} items")
 
           expect(page).to_not have_content("Title: #{@bulk_discount_3.title}")
@@ -79,8 +79,24 @@ RSpec.describe 'Bulk Discounts Index', type: :feature do
         end
       end
 
-      it 'I see a link to create a new discount, when clicked, takes me to a new page where I see a form to add a new bulk discount' do
+      it 'I see a link to create a new discount' do
+        expect(page).to have_link("Create New Discount")
+      end
 
+      it 'when I click the link, it takes me to a new page where I see a form to add a new bulk discount' do
+        click_link "Create New Discount"
+        expect(current_path).to eq(new_merchant_bulk_discount_path(@merchant1))
+        fill_in "Title", with: "25% off of 25 or more"
+        fill_in "Percentage Discount", with: ".25"
+        fill_in "Quantity Threshold", with: "25"
+        click_button "Submit"
+
+        expect(current_path).to eq(merchant_bulk_discounts_path(@merchant1.id))
+        within 'section#all_discounts' do
+          expect(page).to have_content("Title: 25% off of 25 or more")
+          expect(page).to have_content("Percentage Discount: 25%")
+          expect(page).to have_content("Quantity Threshold: 25")
+        end
       end
     end
   end
