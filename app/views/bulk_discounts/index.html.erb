@@ -20,9 +20,11 @@
   <ul class='ml-auto col-sm-4'>
     <section id = "all_discounts" >
       <p><% @discounts.each do |discount| %>
-        <li>Title: <%= link_to "#{discount.title}", "/merchant/#{@merchant.id}/bulk_discounts/#{discount.id}" %>
-        <p>Percentage Discount: <%= (discount.percentage_discount * 100).to_i %>%</p>
-        <p>Quantity Threshold: <%= discount.quantity_threshold %> items</p></li>
+        <li><strong>Title: </strong><%= link_to "#{discount.title}", "/merchant/#{@merchant.id}/bulk_discounts/#{discount.id}" %>
+        <p><strong>Percentage Discount: </strong><%= (discount.percentage_discount * 100).to_i %>%</p>
+        <p><strong>Quantity Threshold: </strong><%= discount.quantity_threshold %> items</p></li>
+        <%= link_to "Delete #{discount.title}", "/merchant/#{@merchant.id}/bulk_discounts/#{discount.id}", method: :delete %>
+        <br>
       <% end %>
       </p>
     </section>
