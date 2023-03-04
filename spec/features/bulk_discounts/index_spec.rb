@@ -91,12 +91,30 @@ RSpec.describe 'Bulk Discounts Index', type: :feature do
         fill_in "Quantity Threshold", with: "25"
         click_button "Submit"
 
-        expect(current_path).to eq(merchant_bulk_discounts_path(@merchant1.id))
+        expect(current_path).to eq(merchant_bulk_discounts_path(@merchant1))
         within 'section#all_discounts' do
           expect(page).to have_content("Title: 25% off of 25 or more")
           expect(page).to have_content("Percentage Discount: 25%")
           expect(page).to have_content("Quantity Threshold: 25")
         end
+      end
+
+      it 'Then next to each bulk discount I see a link to delete it' do
+        within 'section#all_discounts' do
+          expect(page).to have_link("Delete #{@bulk_discount_1.title}")
+          expect(page).to have_link("Delete #{@bulk_discount_2.title}")
+        end
+      end
+
+      it 'When I click the delete link, I am redirected back to the bulk discounts index page, and I no longer see the discount listed' do
+        click_link "Delete #{@bulk_discount_1.title}"
+
+        expect(current_path).to eq(merchant_bulk_discounts_path(@merchant1))
+
+        expect(page).to have_content("Discount deleted")
+        expect(page).to_not have_content("Title: #{@bulk_discount_1.title}")
+        expect(page).to_not have_content("Percentage Discount: #{(@bulk_discount_1.percentage_discount * 100).to_i}%")
+        expect(page).to_not have_content("Quantity Threshold: #{@bulk_discount_1.quantity_threshold} items")
       end
     end
   end
