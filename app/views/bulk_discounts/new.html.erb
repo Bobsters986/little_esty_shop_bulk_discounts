@@ -2,12 +2,14 @@
 
 <h3>New Discount</h3>
 
-<%= form_with model: [@merchant, @discount], local: true do |f| %>
-  <%= f.label :title, 'Title' %>
-  <%= f.text_field :title %><br/><br/>
-  <%= f.label :percentage_discount, 'Percentage Discount' %>
-  <%= f.number_field :percentage_discount %><br/><br/>
-  <%= f.label :quantity_threshold, 'Quantity Threshold' %>
-  <%= f.number_field :quantity_threshold %><br/><br/>
-  <%= f.submit 'Submit'%>
-<% end %>
+<div id = "discount_form">
+  <%= form_with model: [@merchant, @discount], local: true do |f| %>
+    <%= f.label :title, 'Title' %>
+    <%= f.text_field :title %><br/><br/>
+    <%= f.label :percentage_discount, 'Percentage Discount' %>
+    <%= f.number_field :percentage_discount %><br/><br/>
+    <%= f.label :quantity_threshold, 'Quantity Threshold' %>
+    <%= f.number_field :quantity_threshold %><br/><br/>
+    <%= f.submit 'Submit'%>
+  <% end %>
+</div>

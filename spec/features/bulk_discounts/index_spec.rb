@@ -86,10 +86,13 @@ RSpec.describe 'Bulk Discounts Index', type: :feature do
       it 'when I click the link, it takes me to a new page where I see a form to add a new bulk discount' do
         click_link "Create New Discount"
         expect(current_path).to eq(new_merchant_bulk_discount_path(@merchant1))
-        fill_in "Title", with: "25% off of 25 or more"
-        fill_in "Percentage Discount", with: "25"
-        fill_in "Quantity Threshold", with: "25"
-        click_button "Submit"
+
+        within 'div#discount_form' do
+          fill_in "Title", with: "25% off of 25 or more"
+          fill_in "Percentage Discount", with: "25"
+          fill_in "Quantity Threshold", with: "25"
+          click_button "Submit"
+        end
 
         expect(current_path).to eq(merchant_bulk_discounts_path(@merchant1))
         within 'section#all_discounts' do
