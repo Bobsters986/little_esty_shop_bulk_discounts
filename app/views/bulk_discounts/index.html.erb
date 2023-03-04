@@ -11,7 +11,7 @@
     <section id = "all_discounts" >
       <p><% @discounts.each do |discount| %>
         <li><strong>Title: </strong><%= link_to "#{discount.title}", "/merchant/#{@merchant.id}/bulk_discounts/#{discount.id}" %>
-        <p><strong>Percentage Discount: </strong><%= discount.percentage_discount %>%</p>
+        <p><strong>Percentage Discount: </strong><%= discount.percentage_discount.to_i %>%</p>
         <p><strong>Quantity Threshold: </strong><%= discount.quantity_threshold %> items</p></li>
         <%= link_to "Delete #{discount.title}", "/merchant/#{@merchant.id}/bulk_discounts/#{discount.id}", method: :delete %>
         <br>

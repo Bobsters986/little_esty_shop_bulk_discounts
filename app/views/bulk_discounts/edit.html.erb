@@ -1,15 +1,15 @@
 <%= render partial: 'bulk_discounts_nav', locals: {merchant: @merchant} %>
 
-<h3>New Discount</h3>
+<h3>Edit <%= @discount.title %></h3>
 
 <div id = "discount_form">
   <%= form_with model: [@merchant, @discount], local: true do |f| %>
     <%= f.label :title, 'Title' %>
-    <%= f.text_field :title %><br/><br/>
+    <%= f.text_field :title, value: @discount.title %><br/><br/>
     <%= f.label :percentage_discount, 'Percentage Discount' %>
-    <%= f.number_field :percentage_discount %><br/><br/>
+    <%= f.number_field :percentage_discount, value: @discount.percentage_discount.to_i %><br/><br/>
     <%= f.label :quantity_threshold, 'Quantity Threshold' %>
-    <%= f.number_field :quantity_threshold %><br/><br/>
+    <%= f.number_field :quantity_threshold, value: @discount.quantity_threshold %><br/><br/>
     <%= f.submit 'Submit'%>
   <% end %>
 </div>

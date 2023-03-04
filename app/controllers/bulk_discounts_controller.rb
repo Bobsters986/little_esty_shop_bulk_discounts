@@ -10,6 +10,9 @@ class BulkDiscountsController < ApplicationController
   def show
   end
 
+  def edit
+  end
+
   def new
     @discount = BulkDiscount.new
   end
@@ -17,6 +20,16 @@ class BulkDiscountsController < ApplicationController
   def create
     discount = @merchant.bulk_discounts.create(bulk_discount_params)
     redirect_to (merchant_bulk_discounts_path(@merchant))
+  end
+
+  def update
+    if @discount.update(bulk_discount_params)
+      flash[:success] = 'Discount was successfully updated!'
+      redirect_to merchant_bulk_discount_path(@merchant, @discount)
+    else
+      flash[:error] = error_message(@discount.errors)
+      redirect_to edit_merchant_bulk_discount_path(@merchant, @discount)
+    end
   end
 
   def destroy

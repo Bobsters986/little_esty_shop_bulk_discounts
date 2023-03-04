@@ -56,11 +56,18 @@ RSpec.describe 'Bulk Discounts Show', type: :feature do
   describe "As a merchant" do
     describe "when I visit my bulk discount show page" do
       it "I see the bulk discount's quantity threshold and percentage discount" do
-        expect(page).to have_content("Bulk Discount ##{@bulk_discount_1.id}")
-        expect(page).to have_content("Title: #{@bulk_discount_1.title}")
-        expect(page).to have_content("Percentage Discount: #{@bulk_discount_1.percentage_discount}%")
-        expect(page).to have_content("Quantity Threshold: #{@bulk_discount_1.quantity_threshold} items")
-        save_and_open_page
+        within 'div#discount_info' do
+          expect(page).to have_content("Bulk Discount ##{@bulk_discount_1.id}")
+          expect(page).to have_content("Title: #{@bulk_discount_1.title}")
+          expect(page).to have_content("Percentage Discount: #{@bulk_discount_1.percentage_discount.to_i}%")
+          expect(page).to have_content("Quantity Threshold: #{@bulk_discount_1.quantity_threshold} items")
+        end
+      end
+
+      it 'I see a link to edit the bulk discount, which takes me to a new page with a form to edit the discount' do
+        click_link "Edit this bulk discount"
+
+        expect(current_path).to eq(edit_merchant_bulk_discount_path(@merchant1, @bulk_discount_1))
       end
     end
   end
