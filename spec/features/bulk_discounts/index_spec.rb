@@ -60,10 +60,10 @@ RSpec.describe 'Bulk Discounts Index', type: :feature do
       it 'I see all of my bulk discounts including their percentage discount and quantity thresholds' do
         within 'section#all_discounts' do
           expect(page).to have_content("Title: #{@bulk_discount_1.title}")
-          expect(page).to have_content("Percentage Discount: #{@bulk_discount_1.percentage_discount}%")
+          expect(page).to have_content("Percentage Discount: #{@bulk_discount_1.percentage_discount.to_i}%")
           expect(page).to have_content("Quantity Threshold: #{@bulk_discount_1.quantity_threshold} items")
           expect(page).to have_content("Title: #{@bulk_discount_2.title}")
-          expect(page).to have_content("Percentage Discount: #{@bulk_discount_2.percentage_discount}%")
+          expect(page).to have_content("Percentage Discount: #{@bulk_discount_2.percentage_discount.to_i}%")
           expect(page).to have_content("Quantity Threshold: #{@bulk_discount_2.quantity_threshold} items")
 
           expect(page).to_not have_content("Title: #{@bulk_discount_3.title}")
@@ -94,7 +94,7 @@ RSpec.describe 'Bulk Discounts Index', type: :feature do
         expect(current_path).to eq(merchant_bulk_discounts_path(@merchant1))
         within 'section#all_discounts' do
           expect(page).to have_content("Title: 25% off of 25 or more")
-          expect(page).to have_content("Percentage Discount: 25.0%")
+          expect(page).to have_content("Percentage Discount: 25%")
           expect(page).to have_content("Quantity Threshold: 25")
         end
       end
@@ -113,7 +113,7 @@ RSpec.describe 'Bulk Discounts Index', type: :feature do
 
         expect(page).to have_content("Discount deleted")
         expect(page).to_not have_content("Title: #{@bulk_discount_1.title}")
-        expect(page).to_not have_content("Percentage Discount: #{(@bulk_discount_1.percentage_discount * 100).to_i}%")
+        expect(page).to_not have_content("Percentage Discount: #{@bulk_discount_1.percentage_discount}%")
         expect(page).to_not have_content("Quantity Threshold: #{@bulk_discount_1.quantity_threshold} items")
       end
     end
