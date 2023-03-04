@@ -5,10 +5,10 @@ RSpec.describe 'Bulk Discounts Index', type: :feature do
     @merchant1 = Merchant.create!(name: 'Hair Care')
     @merchant2 = Merchant.create!(name: 'Jewelry')
 
-    @bulk_discount_1 = @merchant1.bulk_discounts.create!(title: '20% off of 15 or more', percentage_discount: 0.2, quantity_threshold: 15)
-    @bulk_discount_2 = @merchant1.bulk_discounts.create!(title: '15% off of 10 or more', percentage_discount: 0.15, quantity_threshold: 10)
+    @bulk_discount_1 = @merchant1.bulk_discounts.create!(title: '20% off of 15 or more', percentage_discount: 20, quantity_threshold: 15)
+    @bulk_discount_2 = @merchant1.bulk_discounts.create!(title: '15% off of 10 or more', percentage_discount: 15, quantity_threshold: 10)
 
-    @bulk_discount_3 = @merchant2.bulk_discounts.create!(title: '25% off of 15 or more', percentage_discount: 0.25, quantity_threshold: 15)
+    @bulk_discount_3 = @merchant2.bulk_discounts.create!(title: '25% off of 15 or more', percentage_discount: 25, quantity_threshold: 15)
 
     @item_1 = Item.create!(name: "Shampoo", description: "This washes your hair", unit_price: 10, merchant_id: @merchant1.id, status: 1)
     @item_2 = Item.create!(name: "Conditioner", description: "This makes your hair shiny", unit_price: 8, merchant_id: @merchant1.id)
@@ -60,10 +60,10 @@ RSpec.describe 'Bulk Discounts Index', type: :feature do
       it 'I see all of my bulk discounts including their percentage discount and quantity thresholds' do
         within 'section#all_discounts' do
           expect(page).to have_content("Title: #{@bulk_discount_1.title}")
-          expect(page).to have_content("Percentage Discount: #{(@bulk_discount_1.percentage_discount * 100).to_i}%")
+          expect(page).to have_content("Percentage Discount: #{@bulk_discount_1.percentage_discount}%")
           expect(page).to have_content("Quantity Threshold: #{@bulk_discount_1.quantity_threshold} items")
           expect(page).to have_content("Title: #{@bulk_discount_2.title}")
-          expect(page).to have_content("Percentage Discount: #{(@bulk_discount_2.percentage_discount * 100).to_i}%")
+          expect(page).to have_content("Percentage Discount: #{@bulk_discount_2.percentage_discount}%")
           expect(page).to have_content("Quantity Threshold: #{@bulk_discount_2.quantity_threshold} items")
 
           expect(page).to_not have_content("Title: #{@bulk_discount_3.title}")
@@ -87,16 +87,34 @@ RSpec.describe 'Bulk Discounts Index', type: :feature do
         click_link "Create New Discount"
         expect(current_path).to eq(new_merchant_bulk_discount_path(@merchant1))
         fill_in "Title", with: "25% off of 25 or more"
-        fill_in "Percentage Discount", with: ".25"
+        fill_in "Percentage Discount", with: "25"
         fill_in "Quantity Threshold", with: "25"
         click_button "Submit"
 
-        expect(current_path).to eq(merchant_bulk_discounts_path(@merchant1.id))
+        expect(current_path).to eq(merchant_bulk_discounts_path(@merchant1))
         within 'section#all_discounts' do
           expect(page).to have_content("Title: 25% off of 25 or more")
-          expect(page).to have_content("Percentage Discount: 25%")
+          expect(page).to have_content("Percentage Discount: 25.0%")
           expect(page).to have_content("Quantity Threshold: 25")
         end
+      end
+
+      it 'Then next to each bulk discount I see a link to delete it' do
+        within 'section#all_discounts' do
+          expect(page).to have_link("Delete #{@bulk_discount_1.title}")
+          expect(page).to have_link("Delete #{@bulk_discount_2.title}")
+        end
+      end
+
+      it 'When I click the delete link, I am redirected back to the bulk discounts index page, and I no longer see the discount listed' do
+        click_link "Delete #{@bulk_discount_1.title}"
+
+        expect(current_path).to eq(merchant_bulk_discounts_path(@merchant1))
+
+        expect(page).to have_content("Discount deleted")
+        expect(page).to_not have_content("Title: #{@bulk_discount_1.title}")
+        expect(page).to_not have_content("Percentage Discount: #{(@bulk_discount_1.percentage_discount * 100).to_i}%")
+        expect(page).to_not have_content("Quantity Threshold: #{@bulk_discount_1.quantity_threshold} items")
       end
     end
   end
