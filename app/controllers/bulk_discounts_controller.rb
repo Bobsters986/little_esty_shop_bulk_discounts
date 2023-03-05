@@ -3,8 +3,12 @@ class BulkDiscountsController < ApplicationController
   before_action :find_merchant, only: [:index, :new, :create, :destroy]
 
   def index
-    # @merchant = Merchant.find(params[:merchant_id])
     @discounts = @merchant.bulk_discounts
+
+    @first_3_holidays = HolidayService.holidays.first(3)
+    @holidays = @first_3_holidays.map do |holiday|
+      Holiday.new(holiday)
+    end
   end
 
   def show
