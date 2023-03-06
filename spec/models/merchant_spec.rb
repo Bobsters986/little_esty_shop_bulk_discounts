@@ -94,6 +94,9 @@ describe Merchant do
       @merchant1 = Merchant.create!(name: 'Hair Care')
       @merchant2 = Merchant.create!(name: 'Jewelry')
 
+      @bulk_discount_1 = @merchant1.bulk_discounts.create!(title: '15% off of 10 or more', percentage_discount: 15, quantity_threshold: 10)
+      @bulk_discount_2 = @merchant1.bulk_discounts.create!(title: '10% off of 5 or more', percentage_discount: 10, quantity_threshold: 5)
+
       @item_1 = Item.create!(name: "Shampoo", description: "This washes your hair", unit_price: 10, merchant_id: @merchant1.id, status: 1)
       @item_2 = Item.create!(name: "Conditioner", description: "This makes your hair shiny", unit_price: 8, merchant_id: @merchant1.id)
       @item_3 = Item.create!(name: "Brush", description: "This takes out tangles", unit_price: 5, merchant_id: @merchant1.id)
@@ -119,6 +122,7 @@ describe Merchant do
       @invoice_6 = Invoice.create!(customer_id: @customer_5.id, status: 2)
       @invoice_7 = Invoice.create!(customer_id: @customer_6.id, status: 1)
       @invoice_8 = Invoice.create!(customer_id: @customer_6.id, status: 2)
+      @invoice_9 = Invoice.create!(customer_id: @customer_2.id, status: 2)
 
       @ii_1 = InvoiceItem.create!(invoice_id: @invoice_1.id, item_id: @item_1.id, quantity: 9, unit_price: 10, status: 0, created_at: "2012-03-27 14:54:09")
       @ii_2 = InvoiceItem.create!(invoice_id: @invoice_2.id, item_id: @item_1.id, quantity: 1, unit_price: 10, status: 0, created_at: "2012-03-29 14:54:09")
@@ -129,6 +133,11 @@ describe Merchant do
       @ii_8 = InvoiceItem.create!(invoice_id: @invoice_7.id, item_id: @item_8.id, quantity: 1, unit_price: 5, status: 1, created_at: "2012-04-03 14:54:09")
       @ii_9 = InvoiceItem.create!(invoice_id: @invoice_7.id, item_id: @item_4.id, quantity: 1, unit_price: 1, status: 1, created_at: "2012-04-04 14:54:09")
       @ii_10 = InvoiceItem.create!(invoice_id: @invoice_8.id, item_id: @item_4.id, quantity: 1, unit_price: 1, status: 1, created_at: "2012-04-04 14:54:09")
+      @ii_11 = InvoiceItem.create!(invoice_id: @invoice_9.id, item_id: @item_1.id, quantity: 10, unit_price: 10, status: 2, created_at: "2012-04-04 14:54:09")
+      @ii_12 = InvoiceItem.create!(invoice_id: @invoice_9.id, item_id: @item_2.id, quantity: 8, unit_price: 20, status: 2, created_at: "2012-04-04 14:54:09")
+      @ii_13 = InvoiceItem.create!(invoice_id: @invoice_9.id, item_id: @item_3.id, quantity: 12, unit_price: 30, status: 2, created_at: "2012-04-04 14:54:09")
+      @ii_13 = InvoiceItem.create!(invoice_id: @invoice_9.id, item_id: @item_4.id, quantity: 6, unit_price: 10, status: 2, created_at: "2012-04-04 14:54:09")
+      @ii_14 = InvoiceItem.create!(invoice_id: @invoice_9.id, item_id: @item_6.id, quantity: 6, unit_price: 10, status: 2, created_at: "2012-04-04 14:54:09")
 
       @transaction1 = Transaction.create!(credit_card_number: 203942, result: 1, invoice_id: @invoice_1.id)
       @transaction2 = Transaction.create!(credit_card_number: 230948, result: 1, invoice_id: @invoice_2.id)
@@ -157,6 +166,31 @@ describe Merchant do
 
     it "best_day" do
       expect(@merchant1.best_day).to eq(@invoice_8.created_at.to_date)
+    end
+
+    it "total_rev_and_discounts" do
+      total_merchant_revenue = @merchant1.total_rev_and_discounts(@invoice_9).sum do |ii|
+        ii.total_rev
+      end
+      expect(total_merchant_revenue).to eq(680)
+      expect(total_merchant_revenue).to_not eq(740)
+
+      discounts = @merchant1.total_rev_and_discounts(@invoice_9).sum do |ii|
+        ii.max_discount
+      end
+      expect(discounts).to eq(91)
+      expect(discounts).to_not eq(97)
+
+      discounted_revenue = (total_merchant_revenue - discounts)
+      expect(discounted_revenue).to eq(589)
+    end
+
+    it "merchant_total_rev" do
+      expect(@merchant1.merchant_total_revenue(@invoice_9)).to eq(680)
+    end
+
+    it "merchant_discount" do
+      expect(@merchant1.merchant_discounts(@invoice_9)).to eq(91)
     end
   end
 end

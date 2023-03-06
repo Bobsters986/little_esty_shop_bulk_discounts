@@ -5,6 +5,9 @@ RSpec.describe 'invoices show' do
     @merchant1 = Merchant.create!(name: 'Hair Care')
     @merchant2 = Merchant.create!(name: 'Jewelry')
 
+    @bulk_discount_1 = @merchant1.bulk_discounts.create!(title: '15% off of 10 or more', percentage_discount: 15, quantity_threshold: 10)
+    @bulk_discount_2 = @merchant1.bulk_discounts.create!(title: '10% off of 5 or more', percentage_discount: 10, quantity_threshold: 5)
+
     @item_1 = Item.create!(name: "Shampoo", description: "This washes your hair", unit_price: 10, merchant_id: @merchant1.id, status: 1)
     @item_2 = Item.create!(name: "Conditioner", description: "This makes your hair shiny", unit_price: 8, merchant_id: @merchant1.id)
     @item_3 = Item.create!(name: "Brush", description: "This takes out tangles", unit_price: 5, merchant_id: @merchant1.id)
@@ -100,4 +103,30 @@ RSpec.describe 'invoices show' do
      end
   end
 
+  describe "As a merchant, when I visit my merchant invoice show page" do
+
+    before(:each) do
+      @invoice_9 = Invoice.create!(customer_id: @customer_2.id, status: 2)
+
+      @ii_12 = InvoiceItem.create!(invoice_id: @invoice_9.id, item_id: @item_1.id, quantity: 10, unit_price: 10, status: 2, created_at: "2012-04-04 14:54:09")
+      @ii_13 = InvoiceItem.create!(invoice_id: @invoice_9.id, item_id: @item_2.id, quantity: 8, unit_price: 20, status: 2, created_at: "2012-04-04 14:54:09")
+      @ii_14 = InvoiceItem.create!(invoice_id: @invoice_9.id, item_id: @item_3.id, quantity: 12, unit_price: 30, status: 2, created_at: "2012-04-04 14:54:09")
+      @ii_15 = InvoiceItem.create!(invoice_id: @invoice_9.id, item_id: @item_4.id, quantity: 6, unit_price: 10, status: 2, created_at: "2012-04-04 14:54:09")
+      @ii_16 = InvoiceItem.create!(invoice_id: @invoice_9.id, item_id: @item_6.id, quantity: 6, unit_price: 10, status: 2, created_at: "2012-04-04 14:54:09")
+      
+      visit merchant_invoice_path(@merchant1, @invoice_9)
+    end
+
+    it 'I see the total revenue for my merchant from this invoice (not including discounts)' do
+      expect(page).to have_content("Total Revenue for #{@merchant1.name}: #{@merchant1.merchant_total_revenue(@invoice_9)}")
+      expect(page).to have_content("Total Revenue for Hair Care: 680")
+    end
+
+    it 'I see the total discounted revenue for my merchant from this invoice which includes bulk discounts in the calculation' do
+      expect(page).to have_content("Total Revenue for #{@merchant1.name} after discounts: #{@merchant1.merchant_total_revenue(@invoice_9) - @merchant1.merchant_discounts(@invoice_9)}")
+      expect(page).to have_content("Total Revenue for Hair Care after discounts: 589")
+      save_and_open_page
+    end
+
+  end
 end
