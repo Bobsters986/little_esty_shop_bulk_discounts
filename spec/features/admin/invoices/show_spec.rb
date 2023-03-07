@@ -84,7 +84,10 @@ describe 'Admin Invoices Index Page' do
     ii_4 = InvoiceItem.create!(invoice_id: @i1.id, item_id: item_3.id, quantity: 11, unit_price: 25, status: 1)
     visit admin_invoice_path(@i1)
     
+    expect(page).to have_content("Total Revenue: $#{@i1.total_revenue}")
     expect(page).to have_content("Total Revenue: $485")
+
+    expect(page).to have_content("Total Revenue After Discounts: $#{@i1.discounted_revenue}")
     expect(page).to have_content("Total Revenue After Discounts: $416.75")
   end
 end
