@@ -123,7 +123,7 @@ RSpec.describe 'invoices show' do
     end
 
     it 'I see the total discounted revenue for my merchant from this invoice which includes bulk discounts in the calculation' do
-      expect(page).to have_content("Total Revenue for #{@merchant1.name} after discounts: #{@merchant1.merchant_total_revenue(@invoice_9) - @merchant1.merchant_discounts(@invoice_9)}")
+      expect(page).to have_content("Total Revenue for #{@merchant1.name} after discounts: #{@merchant1.merchant_discounted_revenue(@invoice_9)}")
       expect(page).to have_content("Total Revenue for Hair Care after discounts: 589")
 
       ii_17 = InvoiceItem.create!(invoice_id: @invoice_9.id, item_id: @item_8.id, quantity: 10, unit_price: 15, status: 2, created_at: "2012-04-04 14:54:09")

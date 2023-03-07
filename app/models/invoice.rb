@@ -22,4 +22,8 @@ class Invoice < ApplicationRecord
     .group(:id)
     .sum(&:max_discount)
   end
+
+  def discounted_revenue
+    total_revenue - total_discounts
+  end
 end
