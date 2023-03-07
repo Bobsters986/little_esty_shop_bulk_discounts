@@ -36,6 +36,7 @@
         <th class="th1">Item Name</th>
         <th class="th1">Quantity</th>
         <th class="th1">Unit Price</th>
+        <th class="th1">Bulk Discounts</th>
         <th class="th1">Status</th>
       </tr>
     </thead>
@@ -47,6 +48,13 @@
             <td style="text-align:center"><%= i.item.name %></td>
             <td style="text-align:center"><%= i.quantity %></td>
             <td style="text-align:center">$<%= i.unit_price %></td>
+
+            <% if i.inv_item_discount != nil %>
+              <td style="text-align:center"><%= link_to "#{i.inv_item_discount.title}", merchant_bulk_discount_path(i.item.merchant.id, i.inv_item_discount.id) %></td>
+            <% else %>
+              <td style="text-align:center">N/A</td>
+            <% end %>
+
             <td style="text-align:center"><%= form_with model: @invoice, url: merchant_invoice_path(@merchant, @invoice), method: :patch, local: true do |f| %>
                                             <%= f.select :status, Invoice.statuses.keys, selected: "#{@invoice.status}" %>
                                             <%= f.submit 'Update Invoice' %>
