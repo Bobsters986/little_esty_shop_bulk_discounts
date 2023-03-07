@@ -137,6 +137,8 @@ describe Merchant do
       @ii_12 = InvoiceItem.create!(invoice_id: @invoice_9.id, item_id: @item_2.id, quantity: 8, unit_price: 20, status: 2, created_at: "2012-04-04 14:54:09")
       @ii_13 = InvoiceItem.create!(invoice_id: @invoice_9.id, item_id: @item_3.id, quantity: 12, unit_price: 30, status: 2, created_at: "2012-04-04 14:54:09")
       @ii_13 = InvoiceItem.create!(invoice_id: @invoice_9.id, item_id: @item_4.id, quantity: 6, unit_price: 10, status: 2, created_at: "2012-04-04 14:54:09")
+      @ii_15 = InvoiceItem.create!(invoice_id: @invoice_9.id, item_id: @item_8.id, quantity: 4, unit_price: 10, status: 2, created_at: "2012-04-04 14:54:09")
+      @ii_14 = InvoiceItem.create!(invoice_id: @invoice_9.id, item_id: @item_5.id, quantity: 10, unit_price: 10, status: 2, created_at: "2012-04-04 14:54:09")
       @ii_14 = InvoiceItem.create!(invoice_id: @invoice_9.id, item_id: @item_6.id, quantity: 6, unit_price: 10, status: 2, created_at: "2012-04-04 14:54:09")
 
       @transaction1 = Transaction.create!(credit_card_number: 203942, result: 1, invoice_id: @invoice_1.id)
@@ -168,29 +170,39 @@ describe Merchant do
       expect(@merchant1.best_day).to eq(@invoice_8.created_at.to_date)
     end
 
-    it "total_rev_and_discounts" do
-      total_merchant_revenue = @merchant1.total_rev_and_discounts(@invoice_9).sum do |ii|
-        ii.total_rev
-      end
-      expect(total_merchant_revenue).to eq(680)
-      expect(total_merchant_revenue).to_not eq(740)
+    it "merchant_total_revenue" do
+      expect(@merchant1.merchant_total_revenue(@invoice_9)).to eq(720)
+      expect(@merchant1.merchant_total_revenue(@invoice_9)).to_not eq(880)
 
-      discounts = @merchant1.total_rev_and_discounts(@invoice_9).sum do |ii|
-        ii.max_discount
-      end
-      expect(discounts).to eq(91)
-      expect(discounts).to_not eq(97)
+      InvoiceItem.create!(invoice_id: @invoice_9.id, item_id: @item_5.id, quantity: 15, unit_price: 12, status: 2, created_at: "2012-04-04 14:54:09") #item from different merchant
+      expect(@merchant1.merchant_total_revenue(@invoice_9)).to eq(720)
 
-      discounted_revenue = (total_merchant_revenue - discounts)
-      expect(discounted_revenue).to eq(589)
+      InvoiceItem.create!(invoice_id: @invoice_9.id, item_id: @item_7.id, quantity: 10, unit_price: 12, status: 2, created_at: "2012-04-04 14:54:09") #item from this merchant
+      expect(@merchant1.merchant_total_revenue(@invoice_9)).to eq(840)
     end
 
-    it "merchant_total_rev" do
-      expect(@merchant1.merchant_total_revenue(@invoice_9)).to eq(680)
+    it "merchant_total_discounts" do
+      expect(@merchant1.merchant_total_discounts(@invoice_9)).to eq(91)
+      expect(@merchant1.merchant_total_discounts(@invoice_9)).to_not eq(97)
+
+      InvoiceItem.create!(invoice_id: @invoice_9.id, item_id: @item_5.id, quantity: 15, unit_price: 12, status: 2, created_at: "2012-04-04 14:54:09") #item from different merchant
+      expect(@merchant1.merchant_total_discounts(@invoice_9)).to eq(91)
+      
+      InvoiceItem.create!(invoice_id: @invoice_9.id, item_id: @item_7.id, quantity: 10, unit_price: 12, status: 2, created_at: "2012-04-04 14:54:09") #item from this merchant that meets discount quantity threshold, greater 15% discount
+      expect(@merchant1.merchant_total_discounts(@invoice_9)).to eq(109)
+      
+      InvoiceItem.create!(invoice_id: @invoice_9.id, item_id: @item_7.id, quantity: 4, unit_price: 12, status: 2, created_at: "2012-04-04 14:54:09") #item from this merchant that DOESN'T meet discount quantity threshold for either discount
+      expect(@merchant1.merchant_total_discounts(@invoice_9)).to eq(109)
     end
 
-    it "merchant_discount" do
-      expect(@merchant1.merchant_discounts(@invoice_9)).to eq(91)
+    it "merchant_discounted_revenue" do
+      expect(@merchant1.merchant_discounted_revenue(@invoice_9)).to eq(629)
+
+      InvoiceItem.create!(invoice_id: @invoice_9.id, item_id: @item_5.id, quantity: 15, unit_price: 12, status: 2, created_at: "2012-04-04 14:54:09") #item from different merchant
+      expect(@merchant1.merchant_discounted_revenue(@invoice_9)).to eq(629)
+
+      InvoiceItem.create!(invoice_id: @invoice_9.id, item_id: @item_7.id, quantity: 10, unit_price: 12, status: 2, created_at: "2012-04-04 14:54:09") #item from this merchant that meets discount quantity threshold, greater 15% discount
+      expect(@merchant1.merchant_discounted_revenue(@invoice_9)).to eq(731)
     end
   end
 end
