@@ -4,6 +4,9 @@ describe 'Admin Invoices Index Page' do
   before :each do
     @m1 = Merchant.create!(name: 'Merchant 1')
 
+    @bulk_discount_1 = @m1.bulk_discounts.create!(title: '15% off of 10 or more', percentage_discount: 15, quantity_threshold: 10)
+    @bulk_discount_2 = @m1.bulk_discounts.create!(title: '10% off of 5 or more', percentage_discount: 10, quantity_threshold: 5)
+
     @c1 = Customer.create!(first_name: 'Yo', last_name: 'Yoz', address: '123 Heyyo', city: 'Whoville', state: 'CO', zip: 12345)
     @c2 = Customer.create!(first_name: 'Hey', last_name: 'Heyz')
 
@@ -13,8 +16,8 @@ describe 'Admin Invoices Index Page' do
     @item_1 = Item.create!(name: 'test', description: 'lalala', unit_price: 6, merchant_id: @m1.id)
     @item_2 = Item.create!(name: 'rest', description: 'dont test me', unit_price: 12, merchant_id: @m1.id)
 
-    @ii_1 = InvoiceItem.create!(invoice_id: @i1.id, item_id: @item_1.id, quantity: 12, unit_price: 2, status: 0)
-    @ii_2 = InvoiceItem.create!(invoice_id: @i1.id, item_id: @item_2.id, quantity: 6, unit_price: 1, status: 1)
+    @ii_1 = InvoiceItem.create!(invoice_id: @i1.id, item_id: @item_1.id, quantity: 12, unit_price: 10, status: 0)
+    @ii_2 = InvoiceItem.create!(invoice_id: @i1.id, item_id: @item_2.id, quantity: 6, unit_price: 15, status: 1)
     @ii_3 = InvoiceItem.create!(invoice_id: @i2.id, item_id: @item_2.id, quantity: 87, unit_price: 12, status: 2)
 
     visit admin_invoice_path(@i1)
@@ -68,5 +71,20 @@ describe 'Admin Invoices Index Page' do
       expect(current_path).to eq(admin_invoice_path(@i1))
       expect(@i1.status).to eq('completed')
     end
+  end
+
+  it 'should display the total revenue the invoice will generate AFTER discounts' do
+    expect(page).to have_content("Total Revenue: $#{@i1.total_revenue}")
+    expect(page).to have_content("Total Revenue: $210")
+
+    expect(page).to have_content("Total Revenue After Discounts: $#{@i1.total_revenue - @i1.total_discounts}")
+    expect(page).to have_content("Total Revenue After Discounts: $183")
+
+    item_3 = Item.create!(name: 'zest', description: 'Full Clip, you dont wanna test with this', unit_price: 20, merchant_id: @m1.id)
+    ii_4 = InvoiceItem.create!(invoice_id: @i1.id, item_id: item_3.id, quantity: 11, unit_price: 25, status: 1)
+    visit admin_invoice_path(@i1)
+    
+    expect(page).to have_content("Total Revenue: $485")
+    expect(page).to have_content("Total Revenue After Discounts: $416.75")
   end
 end
