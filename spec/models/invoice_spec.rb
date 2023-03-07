@@ -88,6 +88,17 @@ RSpec.describe Invoice, type: :model do
         expect(@invoice_9.total_discounts).to eq(91)
         expect(@invoice_9.total_revenue).to eq(860)
       end
+
+      it 'discounted_revenue' do
+        expect(@invoice_9.total_revenue).to eq(740)
+        expect(@invoice_9.discounted_revenue).to eq(649)
+
+        @bulk_discount_2 = @merchant2.bulk_discounts.create!(title: '10% off of 5 or more', percentage_discount: 10, quantity_threshold: 5)
+        #create new bulk discount to be applied to ii_14/item_6 above. Applies 10% discount, thus decreasing the discounted revenue by 6
+
+        expect(@invoice_9.discounted_revenue).to eq(643)
+        expect(@invoice_9.total_revenue).to eq(740)
+      end
     end
   end
 end
