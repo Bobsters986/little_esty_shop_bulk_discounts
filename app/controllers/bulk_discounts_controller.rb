@@ -4,11 +4,12 @@ class BulkDiscountsController < ApplicationController
 
   def index
     @discounts = @merchant.bulk_discounts
-
-    @first_3_holidays = HolidayService.holidays.first(3)
-    @holidays = @first_3_holidays.map do |holiday|
-      Holiday.new(holiday)
-    end
+    @holidays = HolidaySearch.new.holiday_information
+    
+    # @first_3_holidays = HolidayService.holidays.first(3)
+    # @holidays = @first_3_holidays.map do |holiday|
+    #   Holiday.new(holiday)
+    # end
   end
 
   def show
