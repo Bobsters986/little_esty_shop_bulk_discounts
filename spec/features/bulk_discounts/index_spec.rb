@@ -119,6 +119,17 @@ RSpec.describe 'Bulk Discounts Index', type: :feature do
         expect(page).to_not have_content("Percentage Discount: #{@bulk_discount_1.percentage_discount}%")
         expect(page).to_not have_content("Quantity Threshold: #{@bulk_discount_1.quantity_threshold} items")
       end
+
+      context 'I see a section with a header of "Upcoming Holidays"' do
+        it 'In this section the name and date of the next 3 upcoming US holidays are listed.' do
+          within 'div#upcoming_holidays' do
+            expect(page).to have_content("Upcoming Holidays")
+            expect(page).to have_content("Good Friday, 2023-04-07")
+            expect(page).to have_content("Memorial Day, 2023-05-29")
+            expect(page).to have_content("Juneteenth, 2023-06-19")
+          end
+        end
+      end
     end
   end
 end
