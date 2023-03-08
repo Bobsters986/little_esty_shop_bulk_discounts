@@ -95,11 +95,30 @@ RSpec.describe 'Bulk Discounts Index', type: :feature do
         end
 
         expect(current_path).to eq(merchant_bulk_discounts_path(@merchant1))
+        expect(page).to have_content("Discount was successfully created!")
+
         within 'section#all_discounts' do
           expect(page).to have_content("Title: 25% off of 25 or more")
           expect(page).to have_content("Percentage Discount: 25%")
           expect(page).to have_content("Quantity Threshold: 25")
         end
+      end
+
+      it 'New Bulk Discount form sad path' do
+        click_link "Create New Discount"
+
+        within 'div#discount_form' do
+          fill_in 'Title', with: ' '
+          fill_in 'Percentage Discount', with: "hello"
+          fill_in 'Quantity Threshold', with: ' '
+          click_button 'Submit'
+        end
+
+        expect(current_path).to eq(new_merchant_bulk_discount_path(@merchant1))
+        expect(page).to have_content("Title can't be blank")
+        expect(page).to have_content("Quantity threshold can't be blank")
+        expect(page).to have_content("Quantity threshold is not a number")
+        expect(page).to have_content("Percentage discount is not a number")
       end
 
       it 'Then next to each bulk discount I see a link to delete it' do
